@@ -1,5 +1,8 @@
 # Python Imports
 import os 
+import cv2
+import imutils
+import time
 import json
 
 class CityScapeDataset:
@@ -99,10 +102,22 @@ if __name__ == "__main__":
     image_path_list = cs.get_imagepath_list(dataset_type, city)
     print("\nNumber of image for {} in {} dataset: {}".format(city, dataset_type, len(image_path_list)))
 
+    # Choose an image
+    image_path = image_path_list[5]
+    
     # Fetch the labeled META for the specific image. 
-    image_meta = cs.get_label(image_path_list[5], label_type="vehicle")
+    image_meta = cs.get_label(image_path, label_type="people")
     print("\nKey in the JSON image meta data: ", image_meta.keys())
+    print("Objects in the image:")
+    print([objects["label"] for objects in image_meta["objects"]])
 
     # Fetch test vehicle data
-    vec_meta = cs.get_testvechile_data(image_path_list[5])
+    vec_meta = cs.get_testvechile_data(image_path)
     print("\nKey in the JSON test vehicle data: ", vec_meta.keys())
+
+    # Show image
+    image = cv2.imread(image_path)
+    cv2.imshow("Chossen Image", imutils.resize(image, width=1280))
+    time.sleep(0.1)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
