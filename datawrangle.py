@@ -5,6 +5,15 @@ import imutils
 import time
 import json
 
+from cityscapesscripts.helpers.annotation import CsBbox3d
+from cityscapesscripts.helpers.box3dImageTransform import (
+    Camera, 
+    Box3dImageTransform,
+    CRS_V,
+    CRS_C
+)
+
+
 class CityScapeDataset:
     def __init__(self, ):
         # PATHS
@@ -91,7 +100,37 @@ class CityScapeDataset:
 
         with open(label_path) as json_file:
             return json.load(json_file)
-        
+
+    def get_object_coordinates(self, sensor_meta, object_meta, coordinate_type="vehicle"):
+        # Create a instance of camera using the intresic+extransic parameters 
+        # from the annotation
+        camera = Camera(fx=sensor_meta["fx"],
+                        fy=sensor_meta["fy"],
+                        u0=sensor_meta["u0"],
+                        v0=sensor_meta["v0"],
+                        sensor_T_ISO_8855=sensor_meta["sensor_T_ISO_8855"])
+        # Using the camera, then create a instance for coordinate transormation
+        box3d_annotation = Box3dImageTransform(camera=camera)
+
+        # Class to load the annotation data from the "BBOX"
+        # This is a function from where we fetch bbox (amodel) and label
+        obj = CsBbox3d()
+        # Create class object for the first "object" in the meta data
+        obj.fromJsonText(object_meta)
+        # Init the box3D
+        box3d_annotation.initialize_box_from_annotation(obj, coordinate_system=CRS_V)
+
+        if coordinate_type.lower() == "vehicle":
+            return box3d_annotation.get_vertices(coordinate_system=CRS_V)
+        elif coordinate_type.lower() == "car":
+            return box3d_annotation.get_vertices(coordinate_system=CRS_C)
+        elif coordinate_type.lower() == "image":
+            return box3d_annotation.get_vertices_2d()
+        else:
+            return None
+            
+
+    
 if __name__ == "__main__":
     cs = CityScapeDataset()
     
@@ -106,14 +145,42 @@ if __name__ == "__main__":
     image_path = image_path_list[5]
     
     # Fetch the labeled META for the specific image. 
-    image_meta = cs.get_label(image_path, label_type="people")
+    image_meta = cs.get_label(image_path, label_type="vehicle")
     print("\nKey in the JSON image meta data: ", image_meta.keys())
-    print("Objects in the image:")
+    print("\nObjects in the image:")
     print([objects["label"] for objects in image_meta["objects"]])
 
     # Fetch test vehicle data
     vec_meta = cs.get_testvechile_data(image_path)
     print("\nKey in the JSON test vehicle data: ", vec_meta.keys())
+
+    # Get 3D coordinate of the object in vehcile and image plane
+    # This is only applicable for label_type="vehicle"
+
+    # Print the vertices of the box.
+    # loc is encoded with a 3-char code
+    #   0: B/F: Back or Front
+    #   1: L/R: Left or Right
+    #   2: B/T: Bottom or Top
+    # BLT -> Back left top of the object
+    object = image_meta["objects"][0]
+    print("\n Cooddinate of {} in Vehicle plane:".format(object["label"]))
+    coordinates = cs.get_object_coordinates(image_meta["sensor"], object,  coordinate_type="vehicle")
+    print("     {:>8} {:>8} {:>8}".format("x[m]", "y[m]", "z[m]"))
+    for loc, coord in coordinates.items():
+        print("{}: {:8.2f} {:8.2f} {:8.2f}".format(loc, coord[0], coord[1], coord[2]))
+
+    # Print the vertices of the box.
+    # loc is encoded with a 3-char code
+    #   0: B/F: Back or Front
+    #   1: L/R: Left or Right
+    #   2: B/T: Bottom or Top
+    # BLT -> Back left top of the object
+    print("\n Cooddinate of {} in Image plane:".format(object["label"]))
+    coordinates = cs.get_object_coordinates(image_meta["sensor"], object,  coordinate_type="image")
+    print("\n     {:>8} {:>8}".format("u[px]", "v[px]"))
+    for loc, coord in coordinates.items():
+        print("{}: {:8.2f} {:8.2f}".format(loc, coord[0], coord[1]))
 
     # Show image
     image = cv2.imread(image_path)
@@ -121,3 +188,6 @@ if __name__ == "__main__":
     time.sleep(0.1)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
+
+
+    
