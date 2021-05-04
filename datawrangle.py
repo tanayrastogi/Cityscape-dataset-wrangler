@@ -182,8 +182,16 @@ if __name__ == "__main__":
     for loc, coord in coordinates.items():
         print("{}: {:8.2f} {:8.2f}".format(loc, coord[0], coord[1]))
 
-    # Show image
+    # Draw rectangle on the image for the object
     image = cv2.imread(image_path)
+    xmin = int(min([p[0] for p in coordinates.values()]))
+    ymin = int(min([p[1] for p in coordinates.values()]))
+    xmax = int(max([p[0] for p in coordinates.values()]))
+    ymax = int(max([p[1] for p in coordinates.values()]))
+    cv2.rectangle(image, (xmin, ymin), (xmax, ymax), (255, 0, 0), 2)
+
+    
+    # Show image
     cv2.imshow("Chossen Image", imutils.resize(image, width=1280))
     time.sleep(0.1)
     cv2.waitKey(0)
