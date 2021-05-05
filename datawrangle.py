@@ -112,7 +112,7 @@ class CityScapeDataset:
         type = temp[len(temp) - 3]
         city = temp[len(temp) - 2]
         
-        folder_path = os.path.join(self.VECDATA_PATH, type, city)
+        folder_path = os.path.join(self.CAMERA_PATH, type, city)
         file_name = "_".join(os.path.basename(image_path).split(".")[0].split("_")[:3]) + "_camera.json"
         # Complete path
         label_path = os.path.join(folder_path, file_name)
@@ -176,8 +176,8 @@ if __name__ == "__main__":
 
     # Fetch camera parameters for the image
     camera_paramters = cs.get_camera_paramters(image_path)
-    print("\nKey in the JSON test vehicle data: ", camera_paramters.keys())
-    print("META Data")
+    print("\nKey in the JSON test camera data: ", camera_paramters.keys())
+    print("CAMERA META DATA")
     for k, v in camera_paramters.items():
         print("{}: {}".format(k, v))
 
