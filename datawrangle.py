@@ -29,10 +29,15 @@ class CityScapeDataset:
         ## Folder structure "testvec_metadata-->{type}-->{city}-->{[list of json]}"
         self.VECDATA_PATH = os.path.join(os.path.dirname(__file__), "testvec_metadata")
 
+        ## CAMERA properties for each images in the .JSON from dataset
+        ## Folder structure "camera-->{type}-->{city}-->{[list of json]}" 
+        self.CAMERA_PATH = os.path.join(os.path.dirname(__file__), "camera")
+        
         # Sanity checks
         self.__check_path(self.IMAGE_PATH)
         self.__check_path(self.LABEL_PATH)
         self.__check_path(self.VECDATA_PATH)
+        self.__check_path(self.CAMERA_PATH)
 
     def __check_path(self, path):
         if not os.path.exists(path):
@@ -94,7 +99,22 @@ class CityScapeDataset:
         
         folder_path = os.path.join(self.VECDATA_PATH, type, city)
         file_name = "_".join(os.path.basename(image_path).split(".")[0].split("_")[:3]) + "_vehicle.json"
-         # Complete path
+        # Complete path
+        label_path = os.path.join(folder_path, file_name)
+        self.__check_path(label_path)
+
+        with open(label_path) as json_file:
+            return json.load(json_file)
+
+    def get_camera_paramters(self, image_path):
+        # Type and City
+        temp = image_path.split("/")
+        type = temp[len(temp) - 3]
+        city = temp[len(temp) - 2]
+        
+        folder_path = os.path.join(self.VECDATA_PATH, type, city)
+        file_name = "_".join(os.path.basename(image_path).split(".")[0].split("_")[:3]) + "_camera.json"
+        # Complete path
         label_path = os.path.join(folder_path, file_name)
         self.__check_path(label_path)
 
@@ -153,6 +173,13 @@ if __name__ == "__main__":
     # Fetch test vehicle data
     vec_meta = cs.get_testvechile_data(image_path)
     print("\nKey in the JSON test vehicle data: ", vec_meta.keys())
+
+    # Fetch camera parameters for the image
+    camera_paramters = cs.get_camera_paramters(image_path)
+    print("\nKey in the JSON test vehicle data: ", camera_paramters.keys())
+    print("META Data")
+    for k, v in camera_paramters.items():
+        print("{}: {}".format(k, v))
 
     # Get 3D coordinate of the object in vehcile and image plane
     # This is only applicable for label_type="vehicle"

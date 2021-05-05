@@ -349,7 +349,11 @@ MigrationBackup/
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
 
+# VS code settings
+.vscode/ 
+
 # Do not add the dataset
 images/
 labels/
 testvec_metadata/
+camera/
