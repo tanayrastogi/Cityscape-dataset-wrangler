@@ -19,19 +19,19 @@ class CityScapeDataset:
         # PATHS
         ## All the images from the dataset.
         ## Folder structure "images-->{type}-->{city}-->{[list of images]}"
-        self.IMAGE_PATH = os.path.join(os.path.dirname(__file__), "images")
+        self.IMAGE_PATH = os.path.join(os.path.dirname(__file__), "cityscapedata/images")
 
         ## All the different .JSON label from the dataset.
         ## Folder structure "labels-->{"people", "vehcile"}-->{type}-->{city}-->{[list of json]}"
-        self.LABEL_PATH = os.path.join(os.path.dirname(__file__), "labels")
+        self.LABEL_PATH = os.path.join(os.path.dirname(__file__), "cityscapedata/labels")
 
         ## METADATA about the test vehicle in the .JSON from dataset.
         ## Folder structure "testvec_metadata-->{type}-->{city}-->{[list of json]}"
-        self.VECDATA_PATH = os.path.join(os.path.dirname(__file__), "testvec_metadata")
+        self.VECDATA_PATH = os.path.join(os.path.dirname(__file__), "cityscapedata/testvec_metadata")
 
         ## CAMERA properties for each images in the .JSON from dataset
         ## Folder structure "camera-->{type}-->{city}-->{[list of json]}" 
-        self.CAMERA_PATH = os.path.join(os.path.dirname(__file__), "camera")
+        self.CAMERA_PATH = os.path.join(os.path.dirname(__file__), "cityscapedata/camera")
         
         # Sanity checks
         self.__check_path(self.IMAGE_PATH)
@@ -92,6 +92,15 @@ class CityScapeDataset:
             return json.load(json_file)
 
     def get_testvechile_data(self, image_path):
+        """
+        Function to get the vehicle data from the dataset.
+
+        INPUT:
+            image_path(str):  Full path of the image for which the .JSON is loaded.
+        RETURN
+            <dict>
+            Returns the .JSON loaded for the type and city.
+        """
         # Type and City
         temp = image_path.split("/")
         type = temp[len(temp) - 3]
@@ -107,6 +116,15 @@ class CityScapeDataset:
             return json.load(json_file)
 
     def get_camera_paramters(self, image_path):
+        """
+        Function to get the camera data from the dataset.
+
+        INPUT:
+            image_path(str):  Full path of the image for which the .JSON is loaded.
+        RETURN
+            <dict>
+            Returns the .JSON loaded for the type and city.
+        """
         # Type and City
         temp = image_path.split("/")
         type = temp[len(temp) - 3]
@@ -122,6 +140,17 @@ class CityScapeDataset:
             return json.load(json_file)
 
     def get_object_coordinates(self, sensor_meta, object_meta, coordinate_type="vehicle"):
+        """
+        Function to get the coordinates of the object in an image .
+
+        INPUT:
+            sensor_meta(json):      JSON from the image for the label type vehicle. 
+            object_meta(json):      JSON object for the object for the label type vehicle
+            coordinate_type(str):   (vehicle, car, image)
+        RETURN
+            <dict>
+            Returns the .JSON loaded for the type and city.
+        """
         # Create a instance of camera using the intresic+extransic parameters 
         # from the annotation
         camera = Camera(fx=sensor_meta["fx"],
@@ -223,6 +252,3 @@ if __name__ == "__main__":
     time.sleep(0.1)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
-
-
-    

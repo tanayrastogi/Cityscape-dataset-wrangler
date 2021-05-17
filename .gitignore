@@ -353,7 +353,4 @@ MigrationBackup/
 .vscode/ 
 
 # Do not add the dataset
-images/
-labels/
-testvec_metadata/
-camera/
+cityscapedata/

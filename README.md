@@ -2,7 +2,7 @@
 Data wrangler for Cityscape Dataset. 
 
 # Folder Structure
-You need to have the data from the dataset into following folder structure. 
+You need to have the data from the dataset into folder *cityscapedata* accouring to the following folder structure. 
 - All the **images** in a folder "images" with folder tree: "images"-->{type}-->{city}-->{[list of images]}.
 - All the **image meta** in a folder "labels" with folder tree: "labels"-->{"people", "vehcile"}-->{type}-->{city}-->{[list of json]}.
 - All the **vehicle meta** in a folder "testvec_metadata" with folder tree: "testvec_metadata"-->{type}-->{city}-->{[list of json]}.
